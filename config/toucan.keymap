@@ -4,11 +4,11 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/pointing.h>
 
-// Layer numbering matches the Corne config: Base=0, QWERTY=1, NAV=2, SYM=3.
+// Layer numbering matches the Corne config: Colemak=0, QWERTY=1, NAV=2, SYM=3.
 // ADJ=4 (tri-layer: NAV+SYM held together) and MOUSE=5 (auto-activated by
 // trackpad touch, see boards/shields/toucan/toucan.dtsi) are Toucan2-only
 // additions the Corne doesn't need (no BT, no trackpad).
-#define BASE   0
+#define COLEMAK 0
 #define QWERTY 1
 #define NAV    2
 #define SYM    3
@@ -27,8 +27,8 @@
     keymap {
         compatible = "zmk,keymap";
 
-        base {
-            display-name = "BASE";
+        colemak {
+            display-name = "COLEMAK";
             // Colemak DH, home row mods, inner thumbs = NAV/SYM, outer right thumb = QWERTY toggle
             bindings = <
 &kp ESC     &kp Q         &kp W         &kp F         &kp P         &kp B          &kp J         &kp L          &kp U          &kp Y          &kp SEMI       &kp BSPC
