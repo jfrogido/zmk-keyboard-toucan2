@@ -26,5 +26,6 @@ void draw_layer_status(lv_obj_t *canvas, const struct status_state *state) {
         layer_name = fallback_layer_name;
     }
 
-    lv_canvas_draw_text(canvas, 0, 92, SCREEN_WIDTH, &label_dsc, layer_name);
+    // Sits below the 72px-tall (zoomed) wheel logo, which spans y=40 to y=112.
+    lv_canvas_draw_text(canvas, 0, 116, SCREEN_WIDTH, &label_dsc, layer_name);
 }
