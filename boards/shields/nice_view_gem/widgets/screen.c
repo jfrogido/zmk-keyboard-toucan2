@@ -27,6 +27,11 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "profile_arc.h"
 #include "output_arc.h"
 #include "chart.h"
+#elif defined(CONFIG_TOUCAN_STATUS_SCREEN) && CONFIG_TOUCAN_STATUS_SCREEN == 3
+#include "battery_icon.h"
+#include "battery_icon_peripheral.h"
+#include "profile_row.h"
+#include "../assets/kubernetes_wheel.h"
 #else
 #include "battery.h"
 #include "battery_peripheral.h"
@@ -38,6 +43,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "layer_logo.h"
 #elif defined(CONFIG_TOUCAN_STATUS_SCREEN) && CONFIG_TOUCAN_STATUS_SCREEN == 2
 #include "layer_arc.h"
+#elif defined(CONFIG_TOUCAN_STATUS_SCREEN) && CONFIG_TOUCAN_STATUS_SCREEN == 3
+#include "layer_plain_logo.h"
 #else
 #include "layer.h"
 #endif
@@ -65,7 +72,9 @@ static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_st
     }
 
     // Draw widgets
+    #if !defined(CONFIG_TOUCAN_STATUS_SCREEN) || CONFIG_TOUCAN_STATUS_SCREEN != 3
     draw_output_status(canvas, state);
+    #endif
     #if defined(CONFIG_TOUCAN_STATUS_SCREEN) && CONFIG_TOUCAN_STATUS_SCREEN == 2
     draw_chart_status(canvas, state);
     #endif
@@ -303,6 +312,20 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 
     #if defined(CONFIG_TOUCAN_STATUS_SCREEN) && CONFIG_TOUCAN_STATUS_SCREEN == 2
     widget_chart_status_init();
+    #endif
+
+    #if defined(CONFIG_TOUCAN_STATUS_SCREEN) && CONFIG_TOUCAN_STATUS_SCREEN == 3
+    // Slow sprite-frame spin (not per-frame rotation) - this is a reflective,
+    // refresh-on-demand memory LCD, not a display where continuous redraws
+    // are free. Drawn as a real lv_animimg object layered over the canvas,
+    // since LVGL's animation timers don't drive a canvas draw call directly.
+    widget->logo_anim = lv_animimg_create(widget->obj);
+    lv_animimg_set_src(widget->logo_anim, (const void **)kubernetes_wheel_frames,
+                       KUBERNETES_WHEEL_FRAME_COUNT);
+    lv_animimg_set_duration(widget->logo_anim, KUBERNETES_WHEEL_FRAME_COUNT * 300);
+    lv_animimg_set_repeat_count(widget->logo_anim, LV_ANIM_REPEAT_INFINITE);
+    lv_obj_set_pos(widget->logo_anim, (SCREEN_WIDTH - KUBERNETES_WHEEL_SIZE) / 2, 40);
+    lv_animimg_start(widget->logo_anim);
     #endif
 
     return 0;
