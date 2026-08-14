@@ -319,14 +319,14 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     #endif
 
     #if defined(CONFIG_TOUCAN_STATUS_SCREEN) && CONFIG_TOUCAN_STATUS_SCREEN == 3
-    // Slow sprite-frame spin (not per-frame rotation) - this is a reflective,
-    // refresh-on-demand memory LCD, not a display where continuous redraws
-    // are free. Drawn as a real lv_animimg object layered over the canvas,
-    // since LVGL's animation timers don't drive a canvas draw call directly.
+    // Sprite-frame spin over one 360/7-degree wheel period (8 frames). The
+    // frames loop forever; duration is ~2400ms/7 so a full revolution still
+    // takes ~2.4s. Reflective memory LCD - not continuous redraws. Drawn as
+    // a real lv_animimg over the canvas (anim timers don't drive canvas draws).
     widget->logo_anim = lv_animimg_create(widget->obj);
     lv_animimg_set_src(widget->logo_anim, (const void **)kubernetes_wheel_frames,
                        KUBERNETES_WHEEL_FRAME_COUNT);
-    lv_animimg_set_duration(widget->logo_anim, KUBERNETES_WHEEL_FRAME_COUNT * 300);
+    lv_animimg_set_duration(widget->logo_anim, KUBERNETES_WHEEL_FRAME_COUNT * 43);
     lv_animimg_set_repeat_count(widget->logo_anim, LV_ANIM_REPEAT_INFINITE);
     lv_obj_set_pos(widget->logo_anim, (SCREEN_WIDTH - KUBERNETES_WHEEL_SIZE) / 2, 40);
     lv_animimg_start(widget->logo_anim);
