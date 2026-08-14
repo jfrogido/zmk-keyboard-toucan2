@@ -328,15 +328,7 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
                        KUBERNETES_WHEEL_FRAME_COUNT);
     lv_animimg_set_duration(widget->logo_anim, KUBERNETES_WHEEL_FRAME_COUNT * 300);
     lv_animimg_set_repeat_count(widget->logo_anim, LV_ANIM_REPEAT_INFINITE);
-    // Scaled up from the native 48x48 frames via LVGL zoom rather than
-    // regenerating bitmaps - 384/256 = 1.5x, giving a 72x72 rendered size.
-    // Pivot pinned to the top-left corner so the zoom grows down-right from
-    // a fixed position instead of expanding outward from the center.
-    const uint16_t logo_zoom = 384;
-    const int logo_display_size = KUBERNETES_WHEEL_SIZE * logo_zoom / 256;
-    lv_img_set_pivot(widget->logo_anim, 0, 0);
-    lv_img_set_zoom(widget->logo_anim, logo_zoom);
-    lv_obj_set_pos(widget->logo_anim, (SCREEN_WIDTH - logo_display_size) / 2, 40);
+    lv_obj_set_pos(widget->logo_anim, (SCREEN_WIDTH - KUBERNETES_WHEEL_SIZE) / 2, 40);
     lv_animimg_start(widget->logo_anim);
     #endif
 
