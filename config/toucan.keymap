@@ -115,12 +115,13 @@
         mouse {
             display-name = "MOUSE";
             // Auto-activated while touching the trackpad (is_touching_processor in toucan.dtsi).
-            // Everything transparent except thumbs, which become click buttons.
+            // Left home row (R/S/T on Colemak, S/D/F on QWERTY) becomes mouse clicks, so the
+            // left hand can click while the right hand/thumb works the trackpad. Rest transparent.
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans         &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans         &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans         &trans  &trans  &trans  &trans  &trans  &trans
-                &mkp MCLK &mkp LCLK &mkp RCLK          &mkp LCLK &mkp RCLK &mkp MCLK
+&trans  &trans  &trans     &trans     &trans     &trans         &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &mkp MCLK  &mkp RCLK  &mkp LCLK  &trans         &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans     &trans     &trans     &trans         &trans  &trans  &trans  &trans  &trans  &trans
+                &trans     &trans     &trans         &trans     &trans  &trans
             >;
         };
     };
