@@ -118,10 +118,10 @@
             // Left home row (R/S/T on Colemak, S/D/F on QWERTY) becomes mouse clicks, so the
             // left hand can click while the right hand/thumb works the trackpad. Rest transparent.
             bindings = <
-&trans  &trans  &trans     &trans     &trans     &trans         &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &mkp MCLK  &mkp RCLK  &mkp LCLK  &trans         &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans     &trans     &trans     &trans         &trans  &trans  &trans  &trans  &trans  &trans
-                &trans     &trans     &trans         &trans     &trans  &trans
+&trans  &trans  &trans     &trans     &trans     &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &mkp MCLK  &mkp RCLK  &mkp LCLK  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans     &trans     &trans     &trans      &trans  &trans  &trans  &trans  &trans  &trans
+                           &trans     &trans     &trans      &trans  &trans  &trans
             >;
         };
     };
