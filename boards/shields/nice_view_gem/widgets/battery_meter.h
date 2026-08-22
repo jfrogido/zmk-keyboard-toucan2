@@ -5,13 +5,14 @@
 #include "util.h"
 #include "../assets/custom_fonts.h"
 
-/* Shared Style-3 battery meter: letter + outline + tip + proportional fill.
+/* Shared Style-3 battery meter: outline + tip + proportional fill.
+ * Left of the body is reserved for the charging bolt (no L/R labels).
  * Fits the historical 60x17 slot used by the old l_/r_battery_* bitmaps. */
 
 #define BATTERY_METER_W 60
 #define BATTERY_METER_H 17
 
-#define BATTERY_LETTER_W 14
+#define BATTERY_SLOT_W 15
 #define BATTERY_BODY_X_OFF 16
 #define BATTERY_BODY_Y_OFF 2
 #define BATTERY_BODY_W 40
@@ -20,17 +21,12 @@
 #define BATTERY_TIP_H 6
 #define BATTERY_BORDER 1
 
-static inline void draw_battery_meter(lv_obj_t *canvas, int x, int y, uint8_t level,
-                                      const char *side_label) {
+static inline void draw_battery_meter(lv_obj_t *canvas, int x, int y, uint8_t level) {
     /* Match prior style 0/1/3 behavior: hide the glyph at <=1%, percent text
      * is drawn by the caller so the reading stays legible. */
     if (level <= 1) {
         return;
     }
-
-    lv_draw_label_dsc_t letter_dsc;
-    init_label_dsc(&letter_dsc, LVGL_FOREGROUND, &quinquefive_8, LV_TEXT_ALIGN_LEFT);
-    lv_canvas_draw_text(canvas, x, y + 4, BATTERY_LETTER_W, &letter_dsc, side_label);
 
     const int bx = x + BATTERY_BODY_X_OFF;
     const int by = y + BATTERY_BODY_Y_OFF;
@@ -60,11 +56,30 @@ static inline void draw_battery_meter(lv_obj_t *canvas, int x, int y, uint8_t le
     }
 }
 
+/* Bolt in the former L/R letter slot, left of the battery body. */
+static inline void draw_battery_charging_bolt(lv_obj_t *canvas, int x, int y) {
+    lv_draw_line_dsc_t line_dsc;
+    init_line_dsc(&line_dsc, LVGL_FOREGROUND, 3);
+
+    /* ~13px tall zig-zag centered in the 15x17 letter slot. */
+    int ox = x + 2;
+    int oy = y + 1;
+    lv_point_t pts[] = {
+        {ox + 6, oy},
+        {ox, oy + 7},
+        {ox + 6, oy + 7},
+        {ox, oy + 14},
+    };
+    lv_canvas_draw_line(canvas, pts, 4, &line_dsc);
+}
+
 static inline void draw_battery_percent(lv_obj_t *canvas, int x, int y, uint8_t level) {
     lv_draw_label_dsc_t label_dsc;
-    init_label_dsc(&label_dsc, LVGL_FOREGROUND, &quinquefive_8, LV_TEXT_ALIGN_CENTER);
+    init_label_dsc(&label_dsc, LVGL_FOREGROUND, &quinquefive_8, LV_TEXT_ALIGN_LEFT);
 
     char buf[5];
     snprintf(buf, sizeof(buf), "%d%%", level);
-    lv_canvas_draw_text(canvas, x, y + BATTERY_METER_H + 2, BATTERY_METER_W, &label_dsc, buf);
+    /* Align under the battery body (same x offset as the outline). */
+    lv_canvas_draw_text(canvas, x + BATTERY_BODY_X_OFF, y + BATTERY_METER_H + 2,
+                        BATTERY_BODY_W, &label_dsc, buf);
 }
