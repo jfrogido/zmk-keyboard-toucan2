@@ -14,6 +14,6 @@ void draw_battery_peripheral_status(lv_obj_t *canvas, const struct status_state 
     if (level == 0) {
         return;
     }
-    draw_battery_meter(canvas, BATTERY_ICON_PERIPH_X, BATTERY_ICON_PERIPH_Y, level, "R");
-    draw_battery_percent(canvas, BATTERY_ICON_PERIPH_X, BATTERY_ICON_PERIPH_Y, level, false);
+    draw_battery_meter(canvas, BATTERY_ICON_PERIPH_X, BATTERY_ICON_PERIPH_Y, level);
+    draw_battery_percent(canvas, BATTERY_ICON_PERIPH_X, BATTERY_ICON_PERIPH_Y, level);
 }
