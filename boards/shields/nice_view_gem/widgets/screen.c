@@ -31,11 +31,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "battery_icon.h"
 #include "battery_icon_peripheral.h"
 #include "profile_row.h"
-#include "../assets/kubernetes_wheel.h"
-// Only for struct output_status_state - screen.c's output-tracking code
-// (state struct, event subscription, get_state) is unconditional, even
-// though draw_output_status() itself is never called under style 3.
 #include "output.h"
+#include "../assets/kubernetes_wheel.h"
 #else
 #include "battery.h"
 #include "battery_peripheral.h"
@@ -76,9 +73,7 @@ static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_st
     }
 
     // Draw widgets
-    #if !defined(CONFIG_TOUCAN_STATUS_SCREEN) || CONFIG_TOUCAN_STATUS_SCREEN != 3
     draw_output_status(canvas, state);
-    #endif
     #if defined(CONFIG_TOUCAN_STATUS_SCREEN) && CONFIG_TOUCAN_STATUS_SCREEN == 2
     draw_chart_status(canvas, state);
     #endif
