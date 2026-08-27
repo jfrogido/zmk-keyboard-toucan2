@@ -1,0 +1,1023 @@
+<title>Gem Composer</title>
+<style>
+  :root {
+    --bg: #eef0f3;
+    --panel: #ffffff;
+    --panel-border: #d8dbe1;
+    --text: #15171c;
+    --text-dim: #5b6270;
+    --accent: #c77d2e;
+    --accent-contrast: #fff7ec;
+    --tag-bg: #eee3d3;
+    --tag-text: #7a5322;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12141a;
+      --panel: #1b1e26;
+      --panel-border: #2b2f3a;
+      --text: #edeef2;
+      --text-dim: #9198a6;
+      --accent: #e0994a;
+      --accent-contrast: #1b1200;
+      --tag-bg: #3a2c17;
+      --tag-text: #e0b678;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #12141a;
+    --panel: #1b1e26;
+    --panel-border: #2b2f3a;
+    --text: #edeef2;
+    --text-dim: #9198a6;
+    --accent: #e0994a;
+    --accent-contrast: #1b1200;
+    --tag-bg: #3a2c17;
+    --tag-text: #e0b678;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.5;
+  }
+
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 3.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.5rem;
+  }
+
+  h1 {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+    letter-spacing: -0.01em;
+    margin: 0 0 0.6rem;
+    text-wrap: balance;
+  }
+
+  .lede {
+    max-width: 38em;
+    color: var(--text-dim);
+    margin: 0;
+    font-size: 0.98rem;
+  }
+
+  .workbench {
+    display: grid;
+    grid-template-columns: minmax(0, 432px) minmax(280px, 360px);
+    gap: 1.75rem;
+    align-items: start;
+  }
+
+  @media (max-width: 760px) {
+    .workbench { grid-template-columns: 1fr; }
+  }
+
+  .device-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    position: sticky;
+    top: 1.25rem;
+  }
+
+  @media (max-width: 760px) {
+    .device-card { position: static; }
+  }
+
+  .device-shield {
+    background: #c8cbc8;
+    border: 1px solid var(--panel-border);
+    border-top: 3px solid var(--accent);
+    border-radius: 14px;
+    padding: 1.25rem;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+  }
+
+  canvas#screen {
+    width: 100%;
+    max-width: 432px;
+    height: auto;
+    image-rendering: pixelated;
+    border-radius: 2px;
+    display: block;
+  }
+
+  .device-caption {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    font-size: 0.74rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .device-caption .unit {
+    color: var(--text);
+  }
+
+  .control-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .presets {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .presets button {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    padding: 0.45rem 0.85rem;
+    cursor: pointer;
+  }
+
+  .presets button.is-flagship {
+    background: var(--accent);
+    color: var(--accent-contrast);
+    border-color: var(--accent);
+  }
+
+  .presets button:hover { border-color: var(--accent); }
+
+  .presets button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  fieldset {
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem 0.8rem;
+    margin: 0;
+    background: var(--panel);
+  }
+
+  fieldset:disabled { opacity: 0.45; }
+
+  legend {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    padding: 0 0.15rem;
+  }
+
+  .group-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .tag {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 0.65rem;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.86rem;
+  }
+
+  .row.wrap { flex-wrap: wrap; }
+
+  .row span.k { color: var(--text-dim); }
+
+  .row output,
+  .row .num {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    min-width: 2.4em;
+    text-align: right;
+  }
+
+  input[type="range"] { flex: 1; accent-color: var(--accent); }
+  input[type="checkbox"] { accent-color: var(--accent); width: 1rem; height: 1rem; }
+
+  select, input[type="text"] {
+    font-family: ui-sans-serif, "Segoe UI", system-ui, sans-serif;
+    font-size: 0.86rem;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+  }
+
+  input[type="text"] { width: 6.5em; text-transform: uppercase; }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.3rem;
+  }
+
+  .chips button {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    background: var(--bg);
+    color: var(--text-dim);
+    border: 1px solid var(--panel-border);
+    border-radius: 5px;
+    padding: 0.2rem 0.45rem;
+    cursor: pointer;
+  }
+
+  .chips button:hover { border-color: var(--accent); color: var(--text); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">nice_view_gem &middot; widget composer</p>
+    <h1>Gem Composer</h1>
+    <p class="lede">
+      Narrowed to what's actually being decided: battery level with a numeric readout, a charging indicator,
+      and the active layer name. Shipped positions use the exact draw coordinates from <code>widgets/*.c</code>;
+      charging and the icon+percent pairing are <span class="tag">proposed</span> &mdash; not in firmware yet.
+    </p>
+  </header>
+
+  <div class="workbench">
+    <section class="device-card" aria-label="Screen preview">
+      <div class="device-shield">
+        <canvas id="screen" width="432" height="504" role="img" aria-label="Simulated nice!view gem status screen"></canvas>
+      </div>
+      <p class="device-caption">
+        <span class="unit">144 &times; 168 px</span> &middot; 1-bit monochrome &middot; Sharp memory LCD, left half only<br>
+        Pixel font approximated with a system monospace. The toucan is the real <code>toucan_logo</code> bitmap traced from <code>assets/images.c</code>;
+        the Helm wheel is the real Kubernetes wheel mark traced from <a href="https://github.com/cncf/artwork" style="color:inherit; text-decoration:underline">cncf/artwork</a> &mdash; unrelated project, included for personal, non-commercial use per the <a href="https://www.linuxfoundation.org/trademark-usage/" style="color:inherit; text-decoration:underline">Linux Foundation's trademark policy</a>.
+      </p>
+    </section>
+
+    <aside class="control-rail" aria-label="Widget controls">
+      <div class="presets">
+        <button type="button" class="is-flagship" data-preset="style3">Style 3 &middot; Current</button>
+        <button type="button" data-preset="style0">Style 0 &middot; Plain</button>
+        <button type="button" data-preset="style1">Style 1 &middot; Logo</button>
+        <button type="button" data-preset="style2">Style 2 &middot; Arc</button>
+        <button type="button" data-preset="hybrid">Icon + Percent</button>
+      </div>
+
+      <fieldset id="fs-style">
+        <legend>Screen style</legend>
+        <div class="rows">
+          <label class="row">
+            <span class="k">Layout</span>
+            <select id="style">
+              <option value="0">0 &middot; Plain</option>
+              <option value="1">1 &middot; Logo</option>
+              <option value="2">2 &middot; Arc</option>
+              <option value="3" selected>3 &middot; Current (shipped)</option>
+            </select>
+          </label>
+          <label class="row wrap">
+            <span class="k">L/R letter</span>
+            <select id="letterStyle">
+              <option value="inverted" selected>Inverted &middot; black box, white letter</option>
+              <option value="plain">Plain &middot; black letter only</option>
+              <option value="bitmap">Bitmap &middot; shipped asset</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset id="fs-layer">
+        <legend>
+          <label class="group-toggle"><input type="checkbox" id="showLayer" checked> Layer name</label>
+        </legend>
+        <div class="rows">
+          <label class="row">
+            <span class="k">Name</span>
+            <input type="text" id="layerName" value="MOUSE" maxlength="8">
+          </label>
+          <div class="chips" id="layerChips">
+            <button type="button" data-name="QWRT">QWRT</button>
+            <button type="button" data-name="CLMK">CLMK</button>
+            <button type="button" data-name="NAV">NAV</button>
+            <button type="button" data-name="SYM">SYM</button>
+            <button type="button" data-name="FUN">FUN</button>
+            <button type="button" data-name="MOUSE">MOUSE</button>
+            <button type="button" data-name="ADJUST">ADJUST</button>
+          </div>
+          <label class="row wrap">
+            <span class="k">Logo above name <span class="tag">proposed</span></span>
+            <select id="logoChoice">
+              <option value="none">None</option>
+              <option value="toucan">Toucan</option>
+              <option value="helm" selected>Helm wheel (spinning)</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset id="fs-profiles">
+        <legend>
+          <label class="group-toggle"><input type="checkbox" id="showProfiles" checked> BT profiles</label>
+        </legend>
+        <div class="rows">
+          <label class="row">
+            <span class="k">Active slot</span>
+            <input type="range" id="profileIndex" min="0" max="4" value="2">
+            <output id="profileIndexOut">2</output>
+          </label>
+          <label class="row wrap">
+            <span class="k">Link state <span class="tag">proposed</span></span>
+            <select id="profileLink">
+              <option value="connected" selected>Connected</option>
+              <option value="paired">Paired, not connected</option>
+              <option value="unpaired">Unpaired</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset id="fs-output">
+        <legend>
+          <label class="group-toggle"><input type="checkbox" id="showOutput" checked> Output &middot; USB/BLE</label>
+        </legend>
+        <div class="rows">
+          <label class="row wrap">
+            <span class="k">Transport <span class="tag">style 3 restored</span></span>
+            <select id="outputTransport">
+              <option value="usb">USB</option>
+              <option value="ble" selected>BLE</option>
+              <option value="null">NULL</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset id="fs-battOwn">
+        <legend>
+          <label class="group-toggle"><input type="checkbox" id="showBattOwn" checked> Battery &middot; you (L)</label>
+        </legend>
+        <div class="rows">
+          <label class="row">
+            <span class="k">Level</span>
+            <input type="range" id="battOwn" min="0" max="100" value="78">
+            <output id="battOwnOut">78%</output>
+          </label>
+          <label class="row">
+            <span class="k">Show percent <span class="tag">style 3</span></span>
+            <input type="checkbox" id="showBattOwnPct" checked>
+          </label>
+          <label class="row">
+            <span class="k">Charging indicator <span class="tag">L only</span></span>
+            <input type="checkbox" id="chargingOwn">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset id="fs-battPeer">
+        <legend>
+          <label class="group-toggle"><input type="checkbox" id="showBattPeer" checked> Battery &middot; peer (R)</label>
+        </legend>
+        <div class="rows">
+          <label class="row">
+            <span class="k">Level</span>
+            <input type="range" id="battPeer" min="0" max="100" value="52">
+            <output id="battPeerOut">52%</output>
+          </label>
+          <label class="row">
+            <span class="k">Show percent <span class="tag">style 3</span></span>
+            <input type="checkbox" id="showBattPeerPct" checked>
+          </label>
+          <label class="row">
+            <span class="k">Charging indicator <span class="tag">not in firmware</span></span>
+            <input type="checkbox" id="chargingPeer">
+          </label>
+        </div>
+      </fieldset>
+    </aside>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var MONO = 'ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace';
+  var W = 144, H = 168, SCALE = 3;
+  // Sharp memory LCD (nice!view): undrawn glass is light grey; drawn pixels read as black.
+  // Firmware still uses LVGL white-on-black; the panel optics invert that for the eye.
+  var LCD_BG = "#c8cbc8";
+  var LCD_FG = "#111311";
+
+  var canvas = document.getElementById("screen");
+  canvas.width = W * SCALE;
+  canvas.height = H * SCALE;
+  var ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+
+  var BAT_DOTS_LEFT = [[14,53],[12,43],[14,32],[21,24],[31,20],[41,20],[51,24],[58,32],[60,43],[58,53]];
+  var BAT_DOTS_PERIPH = [[86,53],[84,43],[86,32],[93,24],[103,20],[113,20],[123,24],[130,32],[132,43],[130,53]];
+
+  var BATTERY_ICONS = {"l_battery_100":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7feffffffffffe0e7feffffffffffe0e7feffffffffffe0f006ffffffffffe0f806ffffffffffe0fffeffffffffffe0fffeffffffffffe0fffeffffffffffe0"},"l_battery_90":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7feffffffffffe0e7fefffffffffc20e7fefffffffffc20f006fffffffffc20f806fffffffffc20fffefffffffffc20fffefffffffffc20fffeffffffffffe0"},"l_battery_75":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7feffffffffffe0e7feffffffff0020e7feffffffff0020f006ffffffff0020f806ffffffff0020fffeffffffff0020fffeffffffff0020fffeffffffffffe0"},"l_battery_50":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7feffffffffffe0e7fefffffc000020e7fefffffc000020f006fffffc000020f806fffffc000020fffefffffc000020fffefffffc000020fffeffffffffffe0"},"l_battery_25":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7feffffffffffe0e7fefff000000020e7fefff000000020f006fff000000020f806fff000000020fffefff000000020fffefff000000020fffeffffffffffe0"},"l_battery_10":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7fe000000000000e7feffffffffffe0e7fef00000000020e7fef00000000020f006f00000000020f806f00000000020fffef00000000020fffef00000000020fffeffffffffffe0"},"r_battery_100":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000c00e000000000000c7f6000000000000c7f6000000000000c7e6000000000000c006000000000000c7e6000000000000c7e6ffffffffffe0c7e6ffffffffffe0c7e6ffffffffffe0c7e6ffffffffffe0c7e6ffffffffffe0fffeffffffffffe0fffeffffffffffe0fffeffffffffffe0"},"r_battery_90":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000c00e000000000000c7f6000000000000c7f6000000000000c7e6000000000000c006000000000000c7e6000000000000c7e6ffffffffffe0c7e6fffffffffc20c7e6fffffffffc20c7e6fffffffffc20c7e6fffffffffc20fffefffffffffc20fffefffffffffc20fffeffffffffffe0"},"r_battery_75":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000c00e000000000000c7f6000000000000c7f6000000000000c7e6000000000000c006000000000000c7e6000000000000c7e6ffffffffffe0c7e6ffffffff0020c7e6ffffffff0020c7e6ffffffff0020c7e6ffffffff0020fffeffffffff0020fffeffffffff0020fffeffffffffffe0"},"r_battery_50":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000c00e000000000000c7f6000000000000c7f6000000000000c7e6000000000000c006000000000000c7e6000000000000c7e6ffffffffffe0c7e6fffffc000020c7e6fffffc000020c7e6fffffc000020c7e6fffffc000020fffefffffc000020fffefffffc000020fffeffffffffffe0"},"r_battery_25":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000c00e000000000000c7f6000000000000c7f6000000000000c7e6000000000000c006000000000000c7e6000000000000c7e6ffffffffffe0c7e6fff000000020c7e6fff000000020c7e6fff000000020c7e6fff000000020fffefff000000020fffefff000000020fffeffffffffffe0"},"r_battery_10":{"w":60,"h":17,"palette":[0,0,0,255,255,255,255,255],"hex":"00000000000000000000000000000000fffe000000000000c00e000000000000c7f6000000000000c7f6000000000000c7e6000000000000c006000000000000c7e6000000000000c7e6ffffffffffe0c7e6f80000000020c7e6f80000000020c7e6f80000000020c7e6f80000000020fffef80000000020fffef80000000020fffeffffffffffe0"}};
+
+  // Real toucan_logo bitmap (64x64, 1-bit indexed) lifted straight from assets/images.c.
+  var TOUCAN_LOGO_HEX = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003fffe00000000000ff801e0000000001e1c001c0000000039e600030000000037fa0000c000000077fb0000300000006ffd0001f80000006ffd0003fc000000effdff03fe000000effd00ffff000001f7fb0003ff000001f7fb00003f800003d9e600000f800003ce1fffffe1800003e3f400001f800007f004000001800007f80400000080000ffc0400000000000ffe0200000000001ffe0200000000001ffe0200000000003fff0200000000003fff8200000000007fffe600000000007ffffe0000000000fffffe0000000000fffffe0000000001fffffc0000000001fffffc0000000003fffff80000000003fffff00000000007ffffe0000000000fffffc0000000001ffdfb00000000003ff86180000000007ff833f0000000007ff0fffc00000000fff1ff8600000000ffe000c0000000007fc00000000000000f800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+  var TOUCAN_LOGO_BITS = (function () {
+    var bytes = [];
+    for (var i = 0; i < TOUCAN_LOGO_HEX.length; i += 2) bytes.push(parseInt(TOUCAN_LOGO_HEX.substr(i, 2), 16));
+    return bytes;
+  })();
+
+  function drawToucanLogo(x0, y0) {
+    var W_LOGO = 64, ROWBYTES = 8;
+    ctx.fillStyle = LCD_FG;
+    for (var row = 0; row < W_LOGO; row++) {
+      for (var col = 0; col < W_LOGO; col++) {
+        var byte = TOUCAN_LOGO_BITS[row * ROWBYTES + (col >> 3)];
+        var bit = (byte >> (7 - (col & 7))) & 1;
+        if (bit) ctx.fillRect(x0 + col, y0 + row, 1, 1);
+      }
+    }
+  }
+
+  var el = {};
+  ["style","letterStyle","showLayer","layerName","logoChoice","showProfiles","profileIndex","profileIndexOut","profileLink",
+   "showOutput","outputTransport",
+   "showBattOwn","battOwn","battOwnOut","chargingOwn",
+   "showBattOwnPct","showBattPeer","battPeer","battPeerOut","chargingPeer","showBattPeerPct"
+  ].forEach(function (id) { el[id] = document.getElementById(id); });
+
+  var fs = {};
+  ["style","layer","profiles","output","battOwn","battPeer"].forEach(function (k) {
+    fs[k] = document.getElementById("fs-" + k);
+  });
+
+  var state = {};
+
+  function syncStateFromDOM() {
+    state.style = el.style.value;
+    state.letterStyle = el.letterStyle.value;
+    state.showLayer = el.showLayer.checked;
+    state.layerName = el.layerName.value;
+    state.logoChoice = el.logoChoice.value;
+    state.showProfiles = el.showProfiles.checked;
+    state.profileIndex = Number(el.profileIndex.value);
+    el.profileIndexOut.value = String(state.profileIndex);
+    state.profileLink = el.profileLink.value;
+    state.showOutput = el.showOutput.checked;
+    state.outputTransport = el.outputTransport.value;
+    state.showBattOwn = el.showBattOwn.checked;
+    state.battOwn = Number(el.battOwn.value);
+    el.battOwnOut.value = state.battOwn + "%";
+    state.chargingOwn = el.chargingOwn.checked;
+    state.showBattOwnPct = el.showBattOwnPct.checked;
+    state.showBattPeer = el.showBattPeer.checked;
+    state.battPeer = Number(el.battPeer.value);
+    el.battPeerOut.value = state.battPeer + "%";
+    state.chargingPeer = el.chargingPeer.checked;
+    state.showBattPeerPct = el.showBattPeerPct.checked;
+  }
+
+  function setSubDisabled(fieldset, toggle, disabled) {
+    fieldset.querySelectorAll("input, select").forEach(function (input) {
+      if (input !== toggle) input.disabled = disabled;
+    });
+  }
+
+  function updateDisabledStates() {
+    setSubDisabled(fs.layer, el.showLayer, !state.showLayer);
+    setSubDisabled(fs.profiles, el.showProfiles, !state.showProfiles);
+    setSubDisabled(fs.output, el.showOutput, !state.showOutput);
+    setSubDisabled(fs.battOwn, el.showBattOwn, !state.showBattOwn);
+    setSubDisabled(fs.battPeer, el.showBattPeer, !state.showBattPeer);
+  }
+
+  function drawBolt(cx, cy) {
+    ctx.save();
+    ctx.fillStyle = LCD_FG;
+    ctx.beginPath();
+    ctx.moveTo(cx - 1, cy);
+    ctx.lineTo(cx + 2, cy);
+    ctx.lineTo(cx, cy + 4);
+    ctx.lineTo(cx + 2.5, cy + 4);
+    ctx.lineTo(cx - 2, cy + 10);
+    ctx.lineTo(cx - 0.5, cy + 5.5);
+    ctx.lineTo(cx - 3, cy + 5.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawDotSet(dots, level) {
+    var filled = Math.min(10, Math.ceil(level / 10));
+    dots.forEach(function (p, i) {
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], 3, 0, Math.PI * 2);
+      if (i < filled) { ctx.fillStyle = LCD_FG; ctx.fill(); }
+      else { ctx.strokeStyle = LCD_FG; ctx.lineWidth = 1; ctx.stroke(); }
+    });
+  }
+
+  function layerLabel() {
+    var name = (state.layerName || "").trim().toUpperCase();
+    return name || "L#0";
+  }
+
+  function drawLayerArc(name) {
+    ctx.font = "bold 16px " + MONO;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = LCD_FG;
+    ctx.fillText(name, 121, 112);
+  }
+
+  function drawLayerPlain(name) {
+    ctx.font = "bold 20px " + MONO;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = LCD_FG;
+    ctx.fillText(name, W / 2, 70);
+  }
+
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var helmAngle = 0;
+  var helmRAFHandle = null;
+  var helmLastTick = null;
+
+  // Real Kubernetes wheel mark (just the wheel path, not the hull) traced
+  // from the official CNCF artwork repo: cncf/artwork, projects/kubernetes/icon/color.
+  var HELM_WHEEL_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.17 0.08 230.10 223.35" fill="#111311"><path d="M185.814 127.106c-.36-.083-.874-.225-1.227-.29a35.642 35.642 0 0 0-4.046-.326 39.464 39.464 0 0 1-7.57-1.242 4.745 4.745 0 0 1-1.82-1.832l-1.704-.496a54.837 54.837 0 0 0-8.79-37.983c.436-.396 1.262-1.127 1.495-1.342a3.338 3.338 0 0 1 .792-2.39 39.495 39.495 0 0 1 6.277-4.41 35.095 35.095 0 0 0 3.507-2.046c.272-.202.644-.522.929-.75a4.242 4.242 0 1 0-5.256-6.6c-.288.227-.68.525-.936.747a35.004 35.004 0 0 0-2.789 2.95 39.533 39.533 0 0 1-5.69 5.148 4.69 4.69 0 0 1-2.56.278l-1.606 1.147a55.309 55.309 0 0 0-35.032-16.927c-.039-.561-.087-1.577-.102-1.884a3.344 3.344 0 0 1-1.377-2.11 39.533 39.533 0 0 1 .478-7.656 35.112 35.112 0 0 0 .575-4.012c.013-.34-.007-.834-.007-1.201a4.242 4.242 0 1 0-8.441.004c0 .04.009.078.01.118-.004.35-.021.774-.01 1.08a35.476 35.476 0 0 0 .576 4.015 39.475 39.475 0 0 1 .47 7.654 4.601 4.601 0 0 1-1.37 2.182l-.1 1.786a55.052 55.052 0 0 0-7.63 1.173 54.289 54.289 0 0 0-27.574 15.754q-.77-.531-1.526-1.082a3.333 3.333 0 0 1-2.506-.243 39.383 39.383 0 0 1-5.69-5.141 35.255 35.255 0 0 0-2.777-2.95c-.257-.22-.65-.52-.938-.75a5.03 5.03 0 0 0-2.942-1.11 4.066 4.066 0 0 0-3.363 1.49 4.473 4.473 0 0 0 1.038 6.222l.065.046c.276.226.616.515.872.702a35.256 35.256 0 0 0 3.499 2.048 39.367 39.367 0 0 1 6.276 4.412 4.69 4.69 0 0 1 .849 2.434l1.351 1.208a54.613 54.613 0 0 0-8.611 38.073l-1.767.514a5.835 5.835 0 0 1-1.814 1.827 39.39 39.39 0 0 1-7.565 1.247 35.266 35.266 0 0 0-4.049.326c-.324.06-.774.174-1.127.262l-.037.008-.06.018a4.236 4.236 0 1 0 1.875 8.224l.063-.01c.028-.006.052-.02.08-.025.348-.08.786-.163 1.092-.246a35.59 35.59 0 0 0 3.786-1.451 39.527 39.527 0 0 1 7.358-2.165 4.68 4.68 0 0 1 2.426.857l1.84-.315a54.922 54.922 0 0 0 24.34 30.387l-.769 1.84a4.188 4.188 0 0 1 .377 2.387 41.228 41.228 0 0 1-3.82 6.864 35.183 35.183 0 0 0-2.263 3.372c-.168.318-.381.805-.542 1.138a4.238 4.238 0 1 0 7.621 3.616l.007-.008v-.01c.16-.33.387-.763.522-1.072a34.903 34.903 0 0 0 1.218-3.868 29.517 29.517 0 0 1 3.268-7.582 3.43 3.43 0 0 1 1.819-.888l.957-1.73a54.617 54.617 0 0 0 38.946.099c.268.478.768 1.392.9 1.623a3.335 3.335 0 0 1 2.155 1.31 39.306 39.306 0 0 1 2.898 7.096 35.275 35.275 0 0 0 1.225 3.868c.137.312.36.75.522 1.082a4.24 4.24 0 1 0 7.63-3.607c-.161-.333-.383-.82-.55-1.136a35.06 35.06 0 0 0-2.263-3.364 39.372 39.372 0 0 1-3.742-6.7 3.314 3.314 0 0 1 .324-2.49 14.519 14.519 0 0 1-.703-1.703 54.92 54.92 0 0 0 24.328-30.605c.546.087 1.497.253 1.806.316a3.337 3.337 0 0 1 2.36-.877 39.476 39.476 0 0 1 7.36 2.165 35.135 35.135 0 0 0 3.788 1.462c.305.08.74.156 1.09.233.029.008.055.02.083.028l.06.009a4.236 4.236 0 1 0 1.878-8.224zm-40.1-42.987l-18.037 12.787-.063-.03a3.723 3.723 0 0 1-5.913-2.838l-.02-.01-1.253-22.103a43.85 43.85 0 0 1 25.285 12.194zm-33.978 24.228h6.788l4.22 5.276-1.513 6.58-6.096 2.934-6.114-2.94-1.516-6.583zm-6.386-35.648a44.672 44.672 0 0 1 4.503-.774l-1.255 22.137-.092.044a3.72 3.72 0 0 1-5.904 2.852l-.035.02-18.154-12.872a43.467 43.467 0 0 1 20.937-11.407zm-27.52 19.68l16.574 14.824-.018.09a3.72 3.72 0 0 1-1.462 6.395l-.017.072-21.245 6.13a43.454 43.454 0 0 1 6.168-27.51zm22.191 39.38l-8.441 20.397a43.696 43.696 0 0 1-17.536-21.948l21.783-3.7.037.049a3.655 3.655 0 0 1 .73-.065 3.72 3.72 0 0 1 3.364 5.185zm24.916 26.23a43.637 43.637 0 0 1-23.815-1.223l10.713-19.372h.018a3.725 3.725 0 0 1 6.557-.006h.08l10.74 19.404q-2.091.698-4.293 1.199zm13.841-5.751l-8.528-20.605.026-.037a3.725 3.725 0 0 1 1.803-4.823 3.685 3.685 0 0 1 1.425-.37 3.59 3.59 0 0 1 .855.063l.037-.046 21.977 3.714a43.53 43.53 0 0 1-17.595 22.105zm19.903-32.42l-21.352-6.15-.02-.09a3.725 3.725 0 0 1-1.46-6.395l-.008-.043 16.482-14.751a44.279 44.279 0 0 1 6.357 27.43z"/></svg>';
+
+  var helmImg = new Image();
+  var helmImgReady = false;
+  helmImg.onload = function () { helmImgReady = true; render(); };
+  helmImg.src = "data:image/svg+xml," + encodeURIComponent(HELM_WHEEL_SVG);
+
+  function drawHelmWheel(cx, cy, angle, size) {
+    if (!helmImgReady) return;
+    var SIZE = size || 56;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    ctx.drawImage(helmImg, -SIZE / 2, -SIZE / 2, SIZE, SIZE);
+    ctx.restore();
+  }
+
+  function helmTick(t) {
+    if (helmLastTick !== null) helmAngle += (t - helmLastTick) * 0.0015;
+    helmLastTick = t;
+    render();
+    helmRAFHandle = requestAnimationFrame(helmTick);
+  }
+
+  function startHelmAnimation() {
+    if (helmRAFHandle || reduceMotion) return;
+    helmLastTick = null;
+    helmRAFHandle = requestAnimationFrame(helmTick);
+  }
+
+  function stopHelmAnimation() {
+    if (helmRAFHandle) {
+      cancelAnimationFrame(helmRAFHandle);
+      helmRAFHandle = null;
+    }
+  }
+
+  function syncHelmAnimation() {
+    // Style 3 firmware always animates the wheel; other styles only if logo override is helm.
+    var shouldSpin = state.showLayer && (state.style === "3" || (state.style === "hybrid" && state.logoChoice === "helm"));
+    if (shouldSpin) startHelmAnimation();
+    else stopHelmAnimation();
+  }
+
+  function drawLayerLogo(name) {
+    // Style 1: toucan_logo at y=40, name at y=100 (quinquefive_18).
+    drawToucanLogo((W - 64) / 2, 40);
+    ctx.font = "bold 14px " + MONO;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = LCD_FG;
+    ctx.fillText(name, W / 2, 100);
+  }
+
+  function drawLayerStyle3(name) {
+    // Style 3: 72px helm centered at y=40, name at y=116.
+    drawHelmWheel(W / 2, 40 + 36, helmAngle, 72);
+    ctx.font = "bold 14px " + MONO;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = LCD_FG;
+    ctx.fillText(name, W / 2, 116);
+  }
+
+  function drawLayerWithLogo(name) {
+    // Hybrid / proposed logo override only.
+    if (state.logoChoice === "helm") drawHelmWheel(W / 2, 90, helmAngle);
+    else if (state.logoChoice === "toucan") drawToucanLogo((W - 64) / 2, 58);
+    ctx.font = "bold 14px " + MONO;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = LCD_FG;
+    ctx.fillText(name, W / 2, 126);
+  }
+
+  function drawLayer() {
+    var name = layerLabel();
+    if (state.style === "3") { drawLayerStyle3(name); return; }
+    if (state.style === "1") { drawLayerLogo(name); return; }
+    if (state.style === "2") { drawLayerArc(name); return; }
+    if (state.style === "hybrid" && state.logoChoice !== "none") {
+      drawLayerWithLogo(name);
+      return;
+    }
+    drawLayerPlain(name);
+  }
+
+  function drawProfileSquare(x, y, size, kind) {
+    // kind: "connected" | "paired" | "open"
+    if (kind === "connected") {
+      ctx.fillStyle = LCD_FG;
+      ctx.fillRect(x, y, size, size);
+      return;
+    }
+    ctx.strokeStyle = LCD_FG;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
+    if (kind === "paired") {
+      // BT_PAIRED_DOT_SIZE in profile_row.c (style 3 only; style 0/1 never pass "paired").
+      var dotSize = 4;
+      ctx.fillStyle = LCD_FG;
+      ctx.fillRect(x + size / 2 - dotSize / 2, y + size / 2 - dotSize / 2, dotSize, dotSize);
+    }
+  }
+
+  function drawProfilesRow() {
+    // Style 0/1 (profile.c): inactive sprite + filled active, row at (85,143).
+    // Style 3 (profile_row.c): connected / bonded / open per slot, plus an
+    // outlined frame around the active slot so it stays distinguishable
+    // even when another (non-active) profile is also "connected". Sized
+    // and spaced larger than style 0/1 so the frame has room to clear its
+    // neighbor without overlapping.
+    var Y = 143, N = 5;
+    var X0 = state.style === "3" ? 68 : 85;
+    var SIZE = state.style === "3" ? 10 : 8;
+    var SPACING = state.style === "3" ? 16 : 10;
+    var MARGIN = 2;
+    for (var i = 0; i < N; i++) {
+      var x = X0 + i * SPACING;
+      var kind;
+      if (state.style === "3") {
+        if (i === state.profileIndex) kind = state.profileLink;
+        else kind = "open";
+        if (i === state.profileIndex) {
+          ctx.strokeStyle = LCD_FG;
+          ctx.lineWidth = 1;
+          var fx = x - MARGIN, fy = Y - MARGIN, fsize = SIZE + MARGIN * 2;
+          ctx.strokeRect(fx + 0.5, fy + 0.5, fsize - 1, fsize - 1);
+        }
+      } else {
+        kind = (i === state.profileIndex) ? "connected" : "open";
+      }
+      drawProfileSquare(x, Y, SIZE, kind);
+    }
+  }
+
+  function drawProfilesArc() {
+    // Style 2: vertical column at x=126.
+    var X = 126, Y0 = 105, SIZE = 8, SPACING = 10, N = 5;
+    for (var i = 0; i < N; i++) {
+      drawProfileSquare(X, Y0 + i * SPACING, SIZE, i === state.profileIndex ? "connected" : "open");
+    }
+  }
+
+  function drawProfiles() {
+    if (state.style === "2") drawProfilesArc();
+    else drawProfilesRow();
+  }
+
+  function drawBatteryOwnArc(showPct) {
+    drawDotSet(BAT_DOTS_LEFT, state.battOwn);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = LCD_FG;
+    ctx.font = "10px " + MONO;
+    ctx.fillText("L", 37, 31);
+    if (showPct) {
+      ctx.font = "8px " + MONO;
+      ctx.fillText(String(state.battOwn), 37, 45);
+    }
+  }
+
+  function drawBatteryPeerArc(showPct) {
+    drawDotSet(BAT_DOTS_PERIPH, state.battPeer);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = LCD_FG;
+    ctx.font = "10px " + MONO;
+    ctx.fillText("R", 109, 31);
+    if (showPct) {
+      ctx.font = "8px " + MONO;
+      ctx.fillText(String(state.battPeer), 109, 45);
+    }
+  }
+
+  function batteryAssetName(side, level) {
+    // Exact thresholds from battery_icon.c / battery.c
+    var tier;
+    if (level > 90) tier = 100;
+    else if (level > 75) tier = 90;
+    else if (level > 50) tier = 75;
+    else if (level > 25) tier = 50;
+    else if (level > 10) tier = 25;
+    else if (level > 1) tier = 10;
+    else return null;
+    return side + "_battery_" + tier;
+  }
+
+  // Letter glyph occupies the left of each 60x17 battery asset; bar starts after it.
+  var BAT_LETTER_W = 15;
+  var BAT_BAR_X0 = 16;
+
+  function drawIndexed1Bit(img, x0, y0, col0, col1) {
+    var bytes = [];
+    for (var i = 0; i < img.hex.length; i += 2) bytes.push(parseInt(img.hex.substr(i, 2), 16));
+    var stride = Math.ceil(img.w / 8);
+    var from = col0 == null ? 0 : col0;
+    var to = col1 == null ? img.w : col1;
+    ctx.fillStyle = LCD_FG;
+    for (var row = 0; row < img.h; row++) {
+      for (var col = from; col < to; col++) {
+        var byte = bytes[row * stride + (col >> 3)];
+        if ((byte >> (7 - (col & 7))) & 1) ctx.fillRect(x0 + col, y0 + row, 1, 1);
+      }
+    }
+  }
+
+  function drawBatteryLetter(side, x, y) {
+    var letter = side === "l" ? "L" : "R";
+    var boxX = x;
+    var boxY = y + 2;
+    var boxW = 13;
+    var boxH = 13;
+    if (state.letterStyle === "inverted") {
+      ctx.fillStyle = LCD_FG;
+      ctx.fillRect(boxX, boxY, boxW, boxH);
+      ctx.fillStyle = LCD_BG;
+      ctx.font = "bold 10px " + MONO;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(letter, boxX + boxW / 2, boxY + boxH / 2 + 0.5);
+      return;
+    }
+    // plain: black letter only, no filled badge
+    ctx.fillStyle = LCD_FG;
+    ctx.font = "bold 10px " + MONO;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(letter, boxX + boxW / 2, boxY + boxH / 2 + 0.5);
+  }
+
+  function drawFirmwareBattery(side, x, y, level, showPct, charging) {
+    var name = batteryAssetName(side, level);
+    var pctY = y + 17 + 2;
+
+    if (name) {
+      if (state.letterStyle === "bitmap") {
+        drawIndexed1Bit(BATTERY_ICONS[name], x, y);
+      } else {
+        // Bar only from the asset; letter drawn separately (inverted or plain).
+        drawIndexed1Bit(BATTERY_ICONS[name], x, y, BAT_BAR_X0, BATTERY_ICONS[name].w);
+        drawBatteryLetter(side, x, y);
+      }
+    }
+
+    // Percent row under the icon: bolt under the letter, then % to its right.
+    if (charging) {
+      drawChargingBolt(x + 2, pctY);
+    }
+    if (showPct) {
+      ctx.font = "8px " + MONO;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillStyle = LCD_FG;
+      ctx.fillText(level + "%", x + (charging ? 14 : BAT_LETTER_W), pctY);
+    }
+  }
+
+  function drawChargingBolt(ox, oy) {
+    // Same polyline shape as battery_icon.c, parked on the percent row.
+    ctx.strokeStyle = LCD_FG;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "miter";
+    ctx.beginPath();
+    ctx.moveTo(ox + 3, oy);
+    ctx.lineTo(ox, oy + 5);
+    ctx.lineTo(ox + 3, oy + 5);
+    ctx.lineTo(ox, oy + 10);
+    ctx.stroke();
+  }
+
+  function drawBatteryOwn() {
+    if (state.style === "2") {
+      drawBatteryOwnArc(true);
+      return;
+    }
+    var showPct = state.style === "3" || state.style === "hybrid" ? state.showBattOwnPct : false;
+    var charging = (state.style === "3" || state.style === "hybrid") && state.chargingOwn;
+    drawFirmwareBattery("l", 8, 10, state.battOwn, showPct, charging);
+  }
+
+  function drawBatteryPeer() {
+    if (state.style === "2") {
+      drawBatteryPeerArc(true);
+      return;
+    }
+    var showPct = state.style === "3" || state.style === "hybrid" ? state.showBattPeerPct : false;
+    var charging = state.style === "hybrid" && state.chargingPeer;
+    drawFirmwareBattery("r", 80, 10, state.battPeer, showPct, charging);
+  }
+
+  function drawOutput() {
+    // output.c (styles 0/1/3): "USB"/"BLE"/"NULL" at (12,140), left-aligned.
+    // output_arc.c (style 2): same labels, right-aligned near profiles.
+    var label = state.outputTransport === "usb" ? "USB"
+      : state.outputTransport === "ble" ? "BLE" : "NULL";
+    ctx.font = "8px " + MONO;
+    ctx.fillStyle = LCD_FG;
+    ctx.textBaseline = "top";
+    if (state.style === "2") {
+      ctx.textAlign = "right";
+      ctx.fillText(label, W - 18, 143);
+    } else {
+      ctx.textAlign = "left";
+      ctx.fillText(label, 12, 140);
+    }
+  }
+
+  function render() {
+    ctx.save();
+    ctx.scale(SCALE, SCALE);
+    ctx.fillStyle = LCD_BG;
+    ctx.fillRect(0, 0, W, H);
+
+    // Match screen.c draw_top order: output, (chart style2), layer, profiles, batteries.
+    if (state.showOutput) drawOutput();
+    if (state.showLayer) drawLayer();
+    if (state.showProfiles) drawProfiles();
+    if (state.showBattOwn) drawBatteryOwn();
+    if (state.showBattPeer) drawBatteryPeer();
+
+    ctx.restore();
+  }
+
+  function highlightPreset(name) {
+    document.querySelectorAll(".presets button").forEach(function (btn) {
+      btn.classList.toggle("is-flagship", btn.getAttribute("data-preset") === name);
+    });
+  }
+
+  function presetNameForStyle(style) {
+    if (style === "0") return "style0";
+    if (style === "1") return "style1";
+    if (style === "2") return "style2";
+    if (style === "3") return "style3";
+    return "hybrid";
+  }
+
+  function update() {
+    syncStateFromDOM();
+    updateDisabledStates();
+    syncHelmAnimation();
+    render();
+  }
+
+  document.getElementById("layerChips").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-name]");
+    if (!btn) return;
+    el.layerName.value = btn.getAttribute("data-name");
+    update();
+  });
+
+  document.querySelector(".control-rail").addEventListener("input", update);
+  document.querySelector(".control-rail").addEventListener("change", function (e) {
+    if (e.target && e.target.id === "style") {
+      highlightPreset(presetNameForStyle(e.target.value));
+    }
+    update();
+  });
+
+  var presets = {
+    style3: function () {
+      el.style.value = "3";
+      el.showLayer.checked = true; el.layerName.value = "MOUSE"; el.logoChoice.value = "helm";
+      el.showProfiles.checked = true; el.profileIndex.value = 2; el.profileLink.value = "connected";
+      el.showOutput.checked = true; el.outputTransport.value = "ble";
+      el.showBattOwn.checked = true; el.battOwn.value = 61; el.chargingOwn.checked = false; el.showBattOwnPct.checked = true;
+      el.showBattPeer.checked = true; el.battPeer.value = 52; el.chargingPeer.checked = false; el.showBattPeerPct.checked = true;
+    },
+    style0: function () {
+      el.style.value = "0";
+      el.showLayer.checked = true; el.layerName.value = "QWRT"; el.logoChoice.value = "none";
+      el.showProfiles.checked = true; el.profileIndex.value = 2; el.profileLink.value = "connected";
+      el.showOutput.checked = true; el.outputTransport.value = "ble";
+      el.showBattOwn.checked = true; el.battOwn.value = 78; el.chargingOwn.checked = false; el.showBattOwnPct.checked = false;
+      el.showBattPeer.checked = true; el.battPeer.value = 52; el.chargingPeer.checked = false; el.showBattPeerPct.checked = false;
+    },
+    style1: function () {
+      el.style.value = "1";
+      el.showLayer.checked = true; el.layerName.value = "CLMK"; el.logoChoice.value = "toucan";
+      el.showProfiles.checked = true; el.profileIndex.value = 2; el.profileLink.value = "connected";
+      el.showOutput.checked = true; el.outputTransport.value = "usb";
+      el.showBattOwn.checked = true; el.battOwn.value = 78; el.chargingOwn.checked = false; el.showBattOwnPct.checked = false;
+      el.showBattPeer.checked = true; el.battPeer.value = 52; el.chargingPeer.checked = false; el.showBattPeerPct.checked = false;
+    },
+    style2: function () {
+      el.style.value = "2";
+      el.showLayer.checked = true; el.layerName.value = "MOUSE"; el.logoChoice.value = "none";
+      el.showProfiles.checked = true; el.profileIndex.value = 2; el.profileLink.value = "connected";
+      el.showOutput.checked = true; el.outputTransport.value = "ble";
+      el.showBattOwn.checked = true; el.battOwn.value = 78; el.chargingOwn.checked = false; el.showBattOwnPct.checked = true;
+      el.showBattPeer.checked = true; el.battPeer.value = 52; el.chargingPeer.checked = false; el.showBattPeerPct.checked = true;
+    },
+    hybrid: function () {
+      el.style.value = "hybrid";
+      el.showLayer.checked = true; el.layerName.value = "MOUSE"; el.logoChoice.value = "none";
+      el.showProfiles.checked = true; el.profileIndex.value = 2; el.profileLink.value = "connected";
+      el.showOutput.checked = true; el.outputTransport.value = "ble";
+      el.showBattOwn.checked = true; el.battOwn.value = 78; el.chargingOwn.checked = true; el.showBattOwnPct.checked = true;
+      el.showBattPeer.checked = true; el.battPeer.value = 52; el.chargingPeer.checked = false; el.showBattPeerPct.checked = true;
+    }
+  };
+
+  document.querySelectorAll(".presets button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var name = btn.getAttribute("data-preset");
+      presets[name]();
+      highlightPreset(name);
+      update();
+    });
+  });
+
+  // Ensure Layout <select> can represent hybrid experiments.
+  if (![].some.call(el.style.options, function (o) { return o.value === "hybrid"; })) {
+    var opt = document.createElement("option");
+    opt.value = "hybrid";
+    opt.textContent = "hybrid · proposed";
+    el.style.appendChild(opt);
+  }
+
+  presets.style3();
+  highlightPreset("style3");
+  update();
+})();
+</script>
