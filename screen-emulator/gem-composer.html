@@ -694,8 +694,10 @@
     ctx.lineWidth = 1;
     ctx.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
     if (kind === "paired") {
+      // BT_PAIRED_DOT_SIZE in profile_row.c (style 3 only; style 0/1 never pass "paired").
+      var dotSize = 4;
       ctx.fillStyle = LCD_FG;
-      ctx.fillRect(x + size / 2 - 1, y + size / 2 - 1, 2, 2);
+      ctx.fillRect(x + size / 2 - dotSize / 2, y + size / 2 - dotSize / 2, dotSize, dotSize);
     }
   }
 
