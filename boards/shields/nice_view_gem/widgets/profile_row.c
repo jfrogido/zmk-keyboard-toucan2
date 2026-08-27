@@ -2,12 +2,13 @@
 #include "profile_row.h"
 #include <zmk/ble.h>
 
-#define BT_ROW_X       68
-#define BT_ROW_Y       143
-#define BT_DOT_SIZE    10
-#define BT_DOT_SPACING 16
-#define BT_N_PROFILES  5
-#define BT_ACTIVE_MARGIN 2
+#define BT_ROW_X            68
+#define BT_ROW_Y            143
+#define BT_SLOT_SIZE        10
+#define BT_DOT_SPACING      16
+#define BT_N_PROFILES       5
+#define BT_ACTIVE_MARGIN    2
+#define BT_PAIRED_DOT_SIZE  4
 
 static void draw_filled_square(lv_obj_t *canvas, int x, int y, int w, int h) {
     lv_draw_rect_dsc_t dsc;
@@ -36,18 +37,20 @@ void draw_profile_status(lv_obj_t *canvas, const struct status_state *state) {
 
         if (i == state->active_profile_index) {
             draw_outlined_square(canvas, x - BT_ACTIVE_MARGIN, BT_ROW_Y - BT_ACTIVE_MARGIN,
-                                  BT_DOT_SIZE + BT_ACTIVE_MARGIN * 2, BT_DOT_SIZE + BT_ACTIVE_MARGIN * 2);
+                                  BT_SLOT_SIZE + BT_ACTIVE_MARGIN * 2, BT_SLOT_SIZE + BT_ACTIVE_MARGIN * 2);
         }
 
         if (zmk_ble_profile_is_connected(i)) {
-            draw_filled_square(canvas, x, BT_ROW_Y, BT_DOT_SIZE, BT_DOT_SIZE);
+            draw_filled_square(canvas, x, BT_ROW_Y, BT_SLOT_SIZE, BT_SLOT_SIZE);
         } else if (!zmk_ble_profile_is_open(i)) {
             /* Bonded to this slot, but not the one currently connected. */
-            draw_outlined_square(canvas, x, BT_ROW_Y, BT_DOT_SIZE, BT_DOT_SIZE);
-            draw_filled_square(canvas, x + BT_DOT_SIZE / 2 - 1, BT_ROW_Y + BT_DOT_SIZE / 2 - 1, 2, 2);
+            draw_outlined_square(canvas, x, BT_ROW_Y, BT_SLOT_SIZE, BT_SLOT_SIZE);
+            draw_filled_square(canvas, x + BT_SLOT_SIZE / 2 - BT_PAIRED_DOT_SIZE / 2,
+                                BT_ROW_Y + BT_SLOT_SIZE / 2 - BT_PAIRED_DOT_SIZE / 2,
+                                BT_PAIRED_DOT_SIZE, BT_PAIRED_DOT_SIZE);
         } else {
             /* Slot has never been bonded. */
-            draw_outlined_square(canvas, x, BT_ROW_Y, BT_DOT_SIZE, BT_DOT_SIZE);
+            draw_outlined_square(canvas, x, BT_ROW_Y, BT_SLOT_SIZE, BT_SLOT_SIZE);
         }
     }
 }
