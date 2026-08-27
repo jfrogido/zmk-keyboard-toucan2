@@ -2,10 +2,10 @@
 #include "profile_row.h"
 #include <zmk/ble.h>
 
-#define BT_ROW_X       85
+#define BT_ROW_X       68
 #define BT_ROW_Y       143
-#define BT_DOT_SIZE    8
-#define BT_DOT_SPACING 10
+#define BT_DOT_SIZE    10
+#define BT_DOT_SPACING 16
 #define BT_N_PROFILES  5
 #define BT_ACTIVE_MARGIN 2
 

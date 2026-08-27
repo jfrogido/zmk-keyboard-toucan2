@@ -700,12 +700,17 @@
   }
 
   function drawProfilesRow() {
-    // Styles 0/1/3 horizontal row at (85,143).
-    // Style 0/1 (profile.c): inactive sprite + filled active.
+    // Style 0/1 (profile.c): inactive sprite + filled active, row at (85,143).
     // Style 3 (profile_row.c): connected / bonded / open per slot, plus an
     // outlined frame around the active slot so it stays distinguishable
-    // even when another (non-active) profile is also "connected".
-    var X0 = 85, Y = 143, SIZE = 8, SPACING = 10, N = 5, MARGIN = 2;
+    // even when another (non-active) profile is also "connected". Sized
+    // and spaced larger than style 0/1 so the frame has room to clear its
+    // neighbor without overlapping.
+    var Y = 143, N = 5;
+    var X0 = state.style === "3" ? 68 : 85;
+    var SIZE = state.style === "3" ? 10 : 8;
+    var SPACING = state.style === "3" ? 16 : 10;
+    var MARGIN = 2;
     for (var i = 0; i < N; i++) {
       var x = X0 + i * SPACING;
       var kind;
