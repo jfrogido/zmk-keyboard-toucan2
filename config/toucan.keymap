@@ -96,12 +96,15 @@
 
         sym {
             display-name = "SYM";
-            // Left: screenshot + coding symbols. Right: numpad.
+            // Right: numpad, untouched from before. Left: home-row mods on col 1-4/7-10
+            // (same hml/hmr behaviors and columns as Colemak) so Ctrl/Alt/Gui/Shift never
+            // move between layers; ( ) mirrored on the innermost columns; [ ] ( ) grouped
+            // on row 0, { } on row 2 for one-glance bracket access.
             bindings = <
-&kp LC(LG(LS(N4)))  &kp EXCL   &kp AT    &kp HASH   &kp DLLR  &kp PRCNT      &kp MINUS  &kp N7  &kp N8  &kp N9  &kp N0     &kp BSPC
-&kp LGUI            &kp CARET  &kp AMPS  &kp ASTRK  &kp LPAR  &kp RPAR       &kp UNDER  &kp N4  &kp N5  &kp N6  &kp EQUAL  &kp PLUS
-&kp LSHFT           &kp LBKT   &kp RBKT  &kp LBRC   &kp RBRC  &kp UNDER      &kp EQUAL  &kp N1  &kp N2  &kp N3  &kp DOT    &kp DEL
-                                         &kp LSHFT  &kp LALT  &kp LS(LALT)   &kp RET    &kp N0  &trans
+&kp LC(LG(LS(N4)))  &trans           &kp LBKT       &kp RBKT       &kp LPAR         &kp RPAR       &kp MINUS  &kp N7        &kp N8        &kp N9        &kp N0     &kp BSPC
+&trans              &hml LCTRL PRCNT &hml LALT AT   &hml LGUI DLLR &hml LSHFT MINUS &kp UNDER      &kp ASTRK  &hmr RSHFT N4 &hmr RGUI N5  &hmr RALT N6  &hmr RCTRL EQUAL  &kp PLUS
+&kp LT              &kp GT           &kp CARET      &kp LBRC       &kp RBRC         &kp AMPS       &kp EQUAL  &kp N1        &kp N2        &kp N3        &kp DOT    &kp DEL
+                                                     &trans         &kp HASH         &kp EXCL       &kp RET    &kp N0        &trans
             >;
         };
 
